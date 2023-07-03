@@ -1,12 +1,9 @@
 from django_filters import rest_framework as filters
 
-from recipes.models import (
-     Ingredients, Recipes
- )
+from recipes.models import (Ingredients, Recipes)
 
 
 class IngredientsFilter(filters.FilterSet):
-
     name = filters.CharFilter(
         field_name='name',
         lookup_expr='istartswith'
