@@ -3,7 +3,7 @@ from django.db import models
 
 
 class Users(AbstractUser):
-    """Модель пользователей"""
+    '''Модель пользователей'''
 
     REQUIRED_FIELDS = ('first_name', 'last_name', 'username',)
     USERNAME_FIELD = 'email'
@@ -14,13 +14,14 @@ class Users(AbstractUser):
         (USER, USER),
         (ADMIN, ADMIN),
     ]
-
+    username = models.CharField(max_length=254, unique=True, blank=False)
     email = models.EmailField(max_length=254, unique=True, blank=False)
     bio = models.TextField(blank=True)
-    role = models.CharField(max_length=20, choices=ROLES, default=USER)
+    role = models.CharField(choices=ROLES, default=USER, max_length=256)
     confirmation_code = models.CharField(
         max_length=255, blank=True, null=True
     )
+    subscriptions = models.ManyToManyField(to='self', related_name='followers')
 
     @property
     def is_admin(self):

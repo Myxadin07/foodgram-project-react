@@ -1,14 +1,14 @@
 import os
 
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
-load_dotenv('../infra/.env')
+# load_dotenv('../infra/.env')
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv(key='SECRET_KEY', default='12345')
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -23,7 +23,7 @@ INSTALLED_APPS = [
     'recipes',
     'api',
     'rest_framework',
-    'corsheaders',
+    # 'corsheaders',
     'rest_framework.authtoken',
     'django_filters',
     'djoser',
@@ -34,12 +34,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 AUTH_USER_MODEL = 'users.Users'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated'
-    ],
-    'DEFAULT_AUTHENTICATION_CLASSES': [
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
-    ],
+    ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 6,
     'DEFAULT_FILTER_BACKENDS': [

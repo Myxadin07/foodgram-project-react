@@ -1,8 +1,8 @@
 from django_filters import rest_framework as filters
 
 from recipes.models import (
-    Favorite_Recipes, Ingredients, Recipes, Shoppingcart, Tags
-)
+     Ingredients, Recipes
+ )
 
 
 class IngredientsFilter(filters.FilterSet):
@@ -17,40 +17,24 @@ class IngredientsFilter(filters.FilterSet):
         fields = ('name',)
 
 
-class RecipesFilter(filters.FilterSet):
-
-    tags = filters.ModelMultipleChoiceFilter(
-        to_field_name='slug',
-        queryset=Tags.objects.all()
-    )
-    is_favorited = filters.BooleanFilter(method='filter_is_favorited')
-    is_in_shopping_cart = filters.BooleanFilter(
-        method='filter_is_in_shopping_cart'
-    )
-    is_subscribed = filters.BooleanFilter(
-        method='filter_is_subscribed'
-    )
+class RecipeFilter(filters.FilterSet):
+    tags = filters.AllValuesMultipleFilter(field_name='tags__slug')
+    author = filters.NumberFilter(field_name='author__id')
+    filter_is_favorited = filters.BooleanFilter(method='is_favorited')
+    filter_is_in_shopping_cart = filters.BooleanFilter(
+        method='is_in_shopping_cart')
 
     class Meta:
         model = Recipes
-        fields = ('tags', 'author',)
+        fields = ('tags', 'author')
 
-    def filter_is_favorited(self, queryset, name, value):
-        user = self.request.user
+    def is_favorited(self, queryset, name, value):
+        if value:
+            return queryset.filter(favorite__user=self.request.user)
+        return queryset
 
-        if Favorite_Recipes.objects.filter(user=user).exists():
-            return queryset.filter(favorite_recipe__user=user)
-
-        return queryset.none()
-
-    def filter_is_in_shopping_cart(self, queryset, name, value):
-        user = self.request.user
-
-        if Shoppingcart.objects.filter(user=user).exists():
-            return queryset.filter(shoppingcart_recipe__user=user)
-
-        return queryset.none()
-
-    def filter_is_subscribed(self, queryset, name, value):
-        user = self.request.user
-        return queryset.filter(author=user)
+    def is_in_shopping_cart(self, queryset, name, value):
+        if value:
+            return queryset.filter(
+                recipe_shopping_cart__user=self.request.user)
+        return queryset

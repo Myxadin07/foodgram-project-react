@@ -1,25 +1,6 @@
 from django.contrib import admin
-from django.contrib.admin import display
 
-from .models import (Favorite_Recipes, IngredientInRecipe, Ingredients,
-                     Recipes, Shoppingcart, Subscriptions, Tags)
-
-
-class IngrediensInRecipeInline(admin.TabularInline):
-    model = IngredientInRecipe
-    fields = ('ingredient', 'amount',)
-
-
-class RecipesAdmin(admin.ModelAdmin):
-    list_display = ('name', 'author', 'count_favorite',)
-    search_fields = ('author', 'name', 'tags',)
-    list_filter = ('author', 'name', 'tags',)
-    inlines = (IngrediensInRecipeInline,)
-    empty_value_display = '-пусто-'
-
-    @display(description='Количество в избранных')
-    def count_favorite(self, kwags):
-        return kwags.favorite_recipe.count()
+from .models import (Ingredients, Tags)
 
 
 class IngredientsAdmin(admin.ModelAdmin):
@@ -31,8 +12,3 @@ class IngredientsAdmin(admin.ModelAdmin):
 
 admin.site.register(Tags)
 admin.site.register(Ingredients, IngredientsAdmin)
-admin.site.register(Recipes, RecipesAdmin)
-admin.site.register(IngredientInRecipe)
-admin.site.register(Favorite_Recipes)
-admin.site.register(Shoppingcart)
-admin.site.register(Subscriptions)
