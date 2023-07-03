@@ -60,10 +60,10 @@ class CustomUserViewset(UserViewSet):
         return super().get_queryset()
 
     @action(
-            methods=['POST', 'DELETE'],
-            detail=True,
-            url_path='subscribe',
-            permission_classes=[IsAuthenticated]
+        methods=['DELETE', 'POST'],
+        detail=True,
+        url_path='subscribe',
+        permission_classes=[IsAuthenticated]
     )
     def subscribe_or_unsubscribe(self, request, id=None):
         user = self.get_object()
@@ -135,9 +135,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
             return self.delete_from(ShoppingCart, request.user, pk)
 
     @action(
-            detail=False,
-            permission_classes=[IsAuthenticated],
-            methods=['get']
+        detail=False,
+        permission_classes=[IsAuthenticated],
+        methods=['get']
     )
     def download_shopping_cart(self, request):
         """"Вывод списка покупок в текстовый файл"""
