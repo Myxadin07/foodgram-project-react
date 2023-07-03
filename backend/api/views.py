@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from recipes.models import (
-     Ingredients, IngredientsInRecipes, Recipes, ShoppingCart, Tags
+    Ingredients, IngredientsInRecipes, Recipes, ShoppingCart, Tags
 )
 from users.models import Users
 
