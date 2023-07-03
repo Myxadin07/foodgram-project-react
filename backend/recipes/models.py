@@ -4,15 +4,10 @@ from django.db import models
 from users.models import Users
 
 
-STR_NUMBER = 15
 MAX_LENGTH = 256
 MAX_HEX_LENGTH = 7
 REGEX_COLOR = '^#[a-fA-F0-9]{6}$'
 REGEX_ERROR = 'Введенное занчение не является HEX-кодом цвета.'
-REGEX_SLUG = '^[-a-zA-Z0-9_]+$'
-REGEX_SLUG_ERROR = (
-    'slug введен неверно. Может состоять из латинских букв, цифр и спецсимвола _'
-)
 MINIMUM_TIME_TO_COOK = 1
 
 
@@ -23,7 +18,7 @@ class Tags(models.Model):
         max_length=MAX_LENGTH,
     )
     color = models.CharField(
-        verbose_name='Цвет тэга в формате HEX',
+        verbose_name='Цвет тэга',
         unique=True,
         max_length=MAX_HEX_LENGTH,
         validators=[
@@ -183,7 +178,7 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Корзина покупо',
+        verbose_name = 'Корзина покупок',
         verbose_name_plural = 'Корзины покупок',
 
     def __str__(self):

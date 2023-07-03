@@ -26,4 +26,3 @@ class Command(BaseCommand):
                 )
                 ingredients.append(ingredient)
         Ingredients.objects.bulk_create(ingredients)
-        
