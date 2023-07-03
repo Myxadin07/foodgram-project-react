@@ -34,8 +34,6 @@ class CustomUserSerializer(UserSerializer):
             current_user = request.user
             if current_user.is_authenticated:
                 return obj in current_user.subscriptions.filter(pk=obj.pk)
-                # return Users.objects.filter(id=current_user.id,
-                #                             subscriptions=obj).exists()
             return False
 
 
