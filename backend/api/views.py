@@ -137,7 +137,8 @@ class RecipesViewSet(viewsets.ModelViewSet):
     @action(
             detail=False,
             permission_classes=[IsAuthenticated],
-            methods=['get'])
+            methods=['get']
+    )
     def download_shopping_cart(self, request):
         """"Вывод списка покупок в текстовый файл"""
         shopping_cart_filter = request.user.users_shopping_cart.recipes.all()
