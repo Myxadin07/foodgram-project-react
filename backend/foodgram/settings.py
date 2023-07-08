@@ -146,3 +146,18 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 FIXTURE_DIRS = os.path.join(BASE_DIR, 'ingredients')
+
+MAX_LENGTH = 256
+MAX_HEX_LENGTH = 7
+REGEX_COLOR = '^#[a-fA-F0-9]{6}$'
+REGEX_ERROR = 'Введенное занчение не является HEX-кодом цвета.'
+MINIMUM_TIME_TO_COOK = 1
+MINIMUM_AMOUNT_VALUE = 1
+MIN_COOKING_TIME_ERROR = (
+    'Время приготовления не может быть меньше одной минуты!'
+)
+DUPLICATE_INGREDIENT_ERROR = 'Ингредиенты не могут повторяться!'
+TAG_ERROR = 'Рецепт не может быть без тегов!'
+MIN_INGREDIENT_AMOUNT_ERROR = (
+    'Количество ингредиентов не может быть меньше 1!'
+)

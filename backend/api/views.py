@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -12,7 +13,6 @@ from recipes.models import (
     Ingredients, IngredientsInRecipes, Recipes, ShoppingCart, Tags
 )
 from users.models import Users
-
 from .filters import IngredientsFilter, RecipeFilter
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
@@ -44,15 +44,6 @@ class CustomUserViewset(UserViewSet):
     serializer_class = CustomUserSerializer
     pagination_class = NumberPerPage
     permission_classes = [IsAuthenticated]
-
-    @action(
-        methods=('GET',),
-        detail=False,
-        url_path='subscriptions',
-        permission_classes=[IsAuthenticated]
-    )
-    def show_subscriptions(self, request):
-        return super().list(request)
 
     def get_queryset(self):
         if self.action == "show_subscriptions":
@@ -144,18 +135,10 @@ class RecipesViewSet(viewsets.ModelViewSet):
         shopping_cart_filter = request.user.users_shopping_cart.recipes.all()
         ingredient_filter = IngredientsInRecipes.objects.filter(
             recipe__in=shopping_cart_filter
-        )
-        ingredients = {}
-        for ingredient in ingredient_filter:
-            if ingredient.ingredient in ingredients.keys():
-                ingredients[ingredient.ingredient] += ingredient.amount
-            else:
-                ingredients[ingredient.ingredient] = ingredient.amount
-
-        shopping_list = []
-        for k, v in ingredients.items():
-            shopping_list.append(f'{k} - {v} {k} \n')
-
+        ).values('ingredient__name').annotate(total_amount=Sum('amount'))
+        shopping_list = [(f"{item['ingredient__name']}"
+                          f" - {item['total_amount']}"
+                          f" \n") for item in ingredient_filter]
         response = HttpResponse(shopping_list, 'Content-Type: text/plain')
         response['Content-Disposition'] = (
             'attachment; filename="shopping_list.txt"'

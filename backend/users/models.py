@@ -8,16 +8,9 @@ class Users(AbstractUser):
     REQUIRED_FIELDS = ('first_name', 'last_name', 'username',)
     USERNAME_FIELD = 'email'
 
-    USER = 'user'
-    ADMIN = 'admin'
-    ROLES = [
-        (USER, USER),
-        (ADMIN, ADMIN),
-    ]
     username = models.CharField(max_length=254, unique=True, blank=False)
     email = models.EmailField(max_length=254, unique=True, blank=False)
     bio = models.TextField(blank=True)
-    role = models.CharField(choices=ROLES, default=USER, max_length=256)
     confirmation_code = models.CharField(
         max_length=255, blank=True, null=True
     )
@@ -25,7 +18,7 @@ class Users(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == self.ADMIN or self.is_superuser
+        return self.role == self.is_superuser
 
     class Meta:
         ordering = ['username']
