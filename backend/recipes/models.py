@@ -6,6 +6,7 @@ from users.models import Users
 
 
 class Tags(models.Model):
+    '''Модель Тэгов'''
     name = models.CharField(
         verbose_name='Тэг',
         unique=True,
@@ -58,6 +59,7 @@ class Ingredients(models.Model):
 
 
 class Recipes(models.Model):
+    '''Модель рецептов'''
     author = models.ForeignKey(
         Users,
         on_delete=models.CASCADE,
@@ -102,6 +104,7 @@ class Recipes(models.Model):
 
 
 class IngredientsInRecipes(models.Model):
+    '''Модель ингредиентов в рецепте'''
     recipe = models.ForeignKey(
         Recipes,
         on_delete=models.CASCADE,
@@ -132,6 +135,7 @@ class IngredientsInRecipes(models.Model):
 
 
 class Favorite(models.Model):
+    '''Модель добавления в избранное'''
     user = models.ForeignKey(
         Users,
         on_delete=models.CASCADE,
@@ -158,6 +162,7 @@ class Favorite(models.Model):
 
 
 class ShoppingCart(models.Model):
+    '''Модель корзины'''
     user = models.OneToOneField(
         Users,
         on_delete=models.CASCADE,

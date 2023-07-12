@@ -129,28 +129,20 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        instance = super().update(instance, validated_data)
-        instance.tags.clear()
+        tags = validated_data.pop('tags')
+        IngredientsInRecipes.objects.filter(recipe=instance).delete()
         instance.tags.set(tags)
-        instance.ingredient.clear()
-        ingredient_counts = {}
+        recipe_ingredient_list = []
         for ingredient in ingredients:
-            ingredient_id = ingredient['id']
-            amount = ingredient['amount']
-            ingredient_counts[ingredient_id] += amount
-        create_ingredients = [
-            IngredientsInRecipes(
+            recipe_ingredient = IngredientsInRecipes(
                 recipe=instance,
-                ingredient_id=ingredient_id,
-                amount=amount
+                amount=ingredient['amount'],
+                ingredient=get_object_or_404(Ingredients, id=ingredient["id"])
             )
-            for ingredient_id, amount in ingredient_counts.items()
-        ]
-        IngredientsInRecipes.objects.bulk_create(create_ingredients)
-        instance.save()
-        return instance
+        recipe_ingredient_list.append(recipe_ingredient)
+        IngredientsInRecipes.objects.bulk_create(recipe_ingredient_list)
+        return super().update(instance, validated_data)
 
     def to_representation(self, instance):
         return ReadRecipeSerializer(instance, context=self.context).data
