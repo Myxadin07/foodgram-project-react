@@ -138,9 +138,9 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
             recipe_ingredient = IngredientsInRecipes(
                 recipe=instance,
                 amount=ingredient['amount'],
-                ingredient=get_object_or_404(Ingredients, id=ingredient["id"])
+                # ingredient=get_object_or_404(Ingredients, id=ingredient["id"])
             )
-        recipe_ingredient_list.append(recipe_ingredient)
+            recipe_ingredient_list.append(recipe_ingredient)
         IngredientsInRecipes.objects.bulk_create(recipe_ingredient_list)
         return super().update(instance, validated_data)
 

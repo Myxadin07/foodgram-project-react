@@ -8,7 +8,9 @@ class Users(AbstractUser):
     REQUIRED_FIELDS = ('first_name', 'last_name', 'username',)
     USERNAME_FIELD = 'email'
 
+    username = models.CharField(max_length=254, unique=True, blank=False)
     email = models.EmailField(max_length=254, unique=True, blank=False)
+    bio = models.TextField(blank=True)
     confirmation_code = models.CharField(
         max_length=255, blank=True, null=True
     )
