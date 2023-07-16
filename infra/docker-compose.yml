@@ -47,3 +47,5 @@ volumes:
   static_dir:
   media_dir:
   postgres_data:
+
+#try again
