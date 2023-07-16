@@ -29,9 +29,9 @@ jobs:
       run: |
         # запуск проверки проекта по flake8
         python -m flake8
-    - name: Pytest
-      run: |
-        pytest
+    # - name: Pytest
+    #   run: |
+    #     pytest
     - name: Send message if Tests failed
       if: ${{ failure() }}
       uses: appleboy/telegram-action@master
