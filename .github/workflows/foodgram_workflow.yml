@@ -68,7 +68,7 @@ jobs:
             context: ./backend/
             file: ./backend/Dockerfile
             push: true
-            tags: ${{ secrets.DOCKER_USERNAME }}/yamdb_final:latest
+            tags: ${{ secrets.DOCKER_USERNAME }}/foodgram:latest
         - name: Send message if build_and_push_to_docker_hub failed
           if: ${{ failure() }}
           uses: appleboy/telegram-action@master
