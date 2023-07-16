@@ -35,3 +35,6 @@ class RecipeFilter(filters.FilterSet):
             return queryset.filter(
                 recipe_shopping_cart__user=self.request.user)
         return queryset
+
+        
+# для комита
