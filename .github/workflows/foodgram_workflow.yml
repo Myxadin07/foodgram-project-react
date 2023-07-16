@@ -1,76 +1,51 @@
-name: Django-app workflow
+name: foodgram
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   tests:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
-      # Запуск actions setup-python — готового скрипта 
-      # для развёртывания окружения Python
       uses: actions/setup-python@v2
       with:
-        # Выбор версии Python
         python-version: 3.7
 
     - name: Install dependencies
-      run: | 
-        # обновление pip
+      run: |
+        pwd
         python -m pip install --upgrade pip 
-        # установка flake8 и его плагинов
         pip install flake8 pep8-naming flake8-broken-line flake8-return flake8-isort
-        # установка зависимостей
-        pip install -r backend/requirements.txt 
-
+        pip install -r backend/requirements.txt
     - name: Test with flake8 and django tests
       run: |
         # запуск проверки проекта по flake8
         python -m flake8
-    - name: Send message if Tests failed
-      if: ${{ failure() }}
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.TELEGRAM_TO }}
-        token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: |
-          ${{ steps.run_test.outcome }}
-          ${{ steps.run_test.conclusion }}
-          Ошибка при тестировании - ${{ github.repository }}
-          https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
   build_and_push_to_docker_hub:
-      name: Push Docker image to Docker Hub
-      runs-on: ubuntu-latest
-      needs: tests
-      steps:
-        - name: Check out the repo
-          # Проверка доступности репозитория Docker Hub для workflow
-          uses: actions/checkout@v2 
-        - name: Set up Docker Buildx
-          # Вызов сборщика контейнеров docker
-          uses: docker/setup-buildx-action@v1 
-        - name: Login to Docker 
-          # Запуск скрипта авторизации на Docker Hub
-          uses: docker/login-action@v1 
-          with:
-            username: ${{ secrets.DOCKER_USERNAME }}
-            password: ${{ secrets.DOCKER_PASSWORD }}
-        - name: Push backend
-          uses: docker/build-push-action@v2
-          with:
-            context: ./backend
-            push: true
-            tags: myxadin07/foodgram_backend:latest
-
-        - name: Push frontend
-          uses: docker/build-push-action@v2
-          with:
-            context: ./frontend
-            push: true
-            tags: myxadin07/foodgram_frontend:latest
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1 
+      - name: Login to Docker 
+        uses: docker/login-action@v1 
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }} 
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v2 
+        with:
+          context: ./backend/
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/gates:v1.01
 
   deploy:
     runs-on: ubuntu-latest
@@ -85,24 +60,28 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-
-            sudo rm .env
-            sudo touch .env
-            sudo chmod 666 .env
-
-            sudo echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
-            sudo echo DB_NAME=${{ secrets.DB_NAME }} >> .env
-            sudo echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
-            sudo echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
-            sudo echo DB_HOST=${{ secrets.DB_HOST }} >> .env
-            sudo echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-            sudo echo DEBUG=${{ secrets.DEBUG }} >> .env
-            sudo echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
-            sudo echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
-            sudo echo MODE=${{ secrets.MODE }} >> .env
-
-            cd infra/
-            sudo docker pull myxadin07/foodgram:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/gates:v1.01
             sudo docker-compose stop
-            sudo docker-compose rm backend
+            sudo docker-compose rm ${{ secrets.DOCKER_USERNAME }}/gates:v1.01
+            touch .env
+            echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
+            echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+            echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
+            echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+            echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+            echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+            echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
             sudo docker-compose up -d --build
+            sudo docker-compose exec -T backend python manage.py migrate
+            sudo docker-compose exec -T backend python manage.py collectstatic --no-input
+
+  send_message_to_telegramm:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+    - name: send message
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: ${{ github.workflow }} успешно выполнен!
