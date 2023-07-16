@@ -15,7 +15,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - /.env
+      - ./.env
 
   backend:
     container_name: foodgram-app
@@ -25,7 +25,7 @@ services:
       - static_dir:/app/static/
       - media_dir:/app/media/
     env_file:
-      - /.env
+      - ./.env
 
   nginx:
     container_name: foodgram-proxy
