@@ -21,8 +21,8 @@ services:
     build: ../backend
     restart: always
     volumes:
-      - static_dir:/app/static/
-      - media_dir:/app/media/
+      - static_dir:/app/backend/static/
+      - media_dir:/app/backend/media/
     env_file:
       - ./.env
 
