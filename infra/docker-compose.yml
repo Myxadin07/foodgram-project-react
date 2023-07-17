@@ -2,7 +2,7 @@ version: '3.3'
 services:
 
   frontend:
-    image: myxadin07/frontend_foodgram:v1.01
+    image: myxadin07/foodgram_frontend:v1.01
     volumes:
       - ../frontend/:/app/result_build/
 
