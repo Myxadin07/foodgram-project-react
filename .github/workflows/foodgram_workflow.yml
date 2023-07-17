@@ -66,6 +66,7 @@ jobs:
             sudo docker pull myxadin07/foodgram_backend:latest
             sudo docker-compose stop
             sudo docker-compose rm -f backend
+            rm .env
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
             echo DB_NAME=${{ secrets.DB_NAME }} >> .env
