@@ -24,7 +24,7 @@ services:
       - static_dir:/app/static/
       - media_dir:/app/media/
     env_file:
-      - ../.env
+      - ./.env
 
   nginx:
     image: nginx:1.19.3
