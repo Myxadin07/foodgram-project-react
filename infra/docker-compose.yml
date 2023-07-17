@@ -11,7 +11,7 @@ services:
 
 
   backend:
-    image: myxadin07/foodgram_backend:latest
+    build: ../foodgram_backend
     restart: always
     volumes:
       - static_value:/app/backend/static/
@@ -40,5 +40,6 @@ services:
       - backend
 
 volumes:
+  postgres_data:
   static_value:
   media_value:
