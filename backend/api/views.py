@@ -43,7 +43,7 @@ class CustomUserViewset(UserViewSet):
     queryset = Users.objects.all()
     serializer_class = CustomUserSerializer
     pagination_class = NumberPerPage
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         if self.action == "show_subscriptions":

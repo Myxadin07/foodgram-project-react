@@ -11,20 +11,18 @@ services:
 
 
   backend:
-    build: ../foodgram_backend
+    image: myxadin07/foodgram_backend:latest
     restart: always
     volumes:
-      - static_dir:/app/backend/static/
-      - media_dir:/app/backend/media/
+      - static_value:/app/backend/static/
+      - media_value:/app/backend/media/
     depends_on:
       - db
     env_file:
       - ./.env
 
   frontend:
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
+    image: myxadin07/foodgram_frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
 
@@ -42,6 +40,5 @@ services:
       - backend
 
 volumes:
-  postgres_data:
   static_value:
   media_value:
