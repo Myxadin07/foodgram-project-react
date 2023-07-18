@@ -65,8 +65,8 @@ jobs:
             # sudo docker-compose rm ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
             sudo docker-compose stop
-            sudo docker-compose rm -f backend
-            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/backend:latest
+            sudo docker-compose rm -f foodgram_backend
+            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
             rm .env
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
