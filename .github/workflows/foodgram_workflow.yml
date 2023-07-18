@@ -59,10 +59,10 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo docker pull myxadin07/foodgram_backend:latest
             sudo docker-compose stop
-            sudo docker-compose rm myxadin07/foodgram_backend
-            sudo docker rmi myxadin07/foodgram_backend
+            sudo docker-compose rm myxadin07/foodgram_backend:latest
+            sudo docker rmi myxadin07/foodgram_backend:latest
+            sudo docker pull myxadin07/foodgram_backend:latest
             rm .env
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
