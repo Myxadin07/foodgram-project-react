@@ -60,9 +60,9 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             sudo docker-compose stop
-            sudo docker-compose rm myxadin07/foodgram_backend:latest
-            sudo docker rmi myxadin07/foodgram_backend:latest
-            sudo docker pull myxadin07/foodgram_backend:latest
+            sudo docker-compose rm -f backend
+            sudo docker image rm myxadin07/foodgram_backend 
+            sudo docker-compose pull backend
             rm .env
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
