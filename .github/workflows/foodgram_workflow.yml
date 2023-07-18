@@ -62,7 +62,6 @@ jobs:
             sudo docker-compose stop
             sudo docker-compose rm -f backend
             sudo docker image rm myxadin07/foodgram_backend 
-            sudo docker-compose pull backend
             rm .env
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
@@ -86,5 +85,3 @@ jobs:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
         message: ${{ github.workflow }} успешно выполнен!
-
-#dsf
