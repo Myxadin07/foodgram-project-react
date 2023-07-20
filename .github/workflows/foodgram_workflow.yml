@@ -129,7 +129,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd foodgram_project/
-            sudo systemctl stop nginx
             touch .env
             echo SECRET_KEY_APP=${{ secrets.SECRET_KEY_APP }} >> .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
