@@ -25,7 +25,7 @@ class CustomUserSerializer(UserSerializer):
         model = Users
         fields = (
             'email', 'id', 'username', 'first_name',
-            'last_name', 'is_subscribed',
+            'last_name', 'password', 'is_subscribed',
         )
 
     def get_is_subscribed(self, obj):
