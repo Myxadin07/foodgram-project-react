@@ -137,7 +137,7 @@ jobs:
             echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
             echo DB_HOST=${{ secrets.DB_HOST }} >> .env
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-            sudo docker compose up -d
+            sudo docker-compose up -d
 
   send_message_to_telegram:
     runs-on: ubuntu-latest
