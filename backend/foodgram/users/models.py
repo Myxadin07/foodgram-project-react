@@ -18,7 +18,7 @@ class Users(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == self.is_superuser
+        return self.is_staff
 
     class Meta:
         ordering = ['username']
