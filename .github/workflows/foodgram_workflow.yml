@@ -128,6 +128,8 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            sudo docker-compose down -v
+            sudo docker system prune -a
             cd foodgram_project/
             touch .env
             echo SECRET_KEY_APP=${{ secrets.SECRET_KEY_APP }} >> .env
