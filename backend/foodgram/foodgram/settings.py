@@ -92,7 +92,7 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
+        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql_psycopg2'),
         'NAME': os.getenv('POSTGRES_DB', default='foodgram'),
         'USER': os.getenv('POSTGRES_USER', default='foodgram_user'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='foodgram'),
