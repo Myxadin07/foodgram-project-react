@@ -11,8 +11,8 @@ FILE_DIR = os.path.join(settings.BASE_DIR, 'data')
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        data_path = f'{FILE_DIR}/ingredients.json'
-        with open(data_path, encoding='utf-8') as file:
+        # data_path = f'{FILE_DIR}/ingredients.json'
+        with open('/app/data/ingredients.json', encoding='utf-8') as file:
             data = json.load(file)
         ingredients = []
         unique_names = set()
