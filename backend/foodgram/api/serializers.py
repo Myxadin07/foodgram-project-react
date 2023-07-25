@@ -95,7 +95,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         many=True,
     )
     ingredients = CreateRecipeIngredientSerializer(
-        many=True
+        many=True, source='ingredientsinrecipe_set',
     )
 
     class Meta:
@@ -110,7 +110,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         current_user = self.context['request'].user
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
+        ingredients = validated_data.pop('ingredientsinrecipe_set')
         recipe = Recipes.objects.create(**validated_data, author=current_user)
         ingredients_to_create = []
         for ingredient in ingredients:
@@ -129,7 +129,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        ingredients = validated_data.pop('ingredients')
+        ingredients = validated_data.pop('ingredientsinrecipe_set')
         tags = validated_data.pop('tags')
         IngredientsInRecipes.objects.filter(recipe=instance).delete()
         instance.tags.set(tags)
@@ -186,7 +186,9 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
 
 class ReadRecipeSerializer(serializers.ModelSerializer):
     '''Сериализатор показа рецепта, добавлен в избранное или в корзину'''
-    ingredients = serializers.SerializerMethodField()
+    ingredients = serializers.SerializerMethodField(
+        many=True, source='ingredientsinrecipe_set', read_only=True
+    )
     tags = TagsSerializer(many=True, read_only=True)
     author = CustomUserSerializer(read_only=True)
     is_favorited = serializers.SerializerMethodField(read_only=True)
