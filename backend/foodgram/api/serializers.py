@@ -73,23 +73,20 @@ class ReadRecipeIngredientSerializer(serializers.ModelSerializer):
         source='ingredient.measurement_unit', read_only=True)
 
     class Meta:
-        fields = ('id', 'name', 'measurement_unit', 'amount')
         model = IngredientsInRecipes
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class CreateRecipeIngredientSerializer(serializers.ModelSerializer):
     '''Создание ингредиентов для рецепта связующий сериализатор'''
-    id = serializers.IntegerField(source='ingredient.id')
-    name = serializers.ReadOnlyField(source='ingredient.name')
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name', read_only=True)
     measurement_unit = serializers.ReadOnlyField(
-        source='ingredient.measurement_unit'
-    )
+        source='ingredient.measurement_unit', read_only=True)
 
     class Meta:
         model = IngredientsInRecipes
-        fields = (
-            'id', 'name', 'measurement_unit', 'amount',
-        )
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class CreateRecipeSerializer(serializers.ModelSerializer):
