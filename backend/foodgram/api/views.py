@@ -36,7 +36,7 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientsSerializer
     pagination_class = None
     filterset_class = IngredientsFilter
-    # filter_backends = [DjangoFilterBackend]
+    filter_backends = (DjangoFilterBackend,)
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
