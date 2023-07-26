@@ -143,7 +143,6 @@ jobs:
             sudo docker-compose exec -T backend python manage.py makemigrations
             sudo docker-compose exec -T backend python manage.py migrate
             sudo docker-compose exec -T backend python manage.py collectstatic --no-input
-            sudo docker-compose exec -T backend python manage.py import_from_json
             # sudo docker-compose exec -T backend python manage.py loaddata dump.json
 
   send_message_to_telegram:
