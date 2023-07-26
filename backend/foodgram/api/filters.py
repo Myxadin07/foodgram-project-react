@@ -3,8 +3,9 @@ from django_filters import rest_framework as filters
 from recipes.models import (Ingredients, Recipes)
 
 
-class IngredientsFilter(filters.SearchFilter):
-    search_param = 'name'
+class IngredientsFilter(filters.FilterSet):
+    name = filters. CharFilter(lookup_expr='istartswith')
+    # search_param = 'name'
     # name = filters.CharFilter(
     #     search_param='name',
     #     lookup_expr='istartswith'
