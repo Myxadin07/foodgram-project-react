@@ -54,7 +54,7 @@ class CustomUserViewset(UserViewSet):
     @action(
         methods=['DELETE', 'POST'],
         detail=True,
-        # url_path='subscribe',
+        url_path='subscriptions',
         permission_classes=[IsAuthenticated]
     )
     def subscribe_or_unsubscribe(self, request, id=None):
