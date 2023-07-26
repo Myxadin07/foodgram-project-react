@@ -158,6 +158,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
             )
 
         ingredients_list = []
+        ingredients = self.initial_data.get('ingredients')
         for item in ingredients:
             if item['id'] in ingredients_list:
                 raise exceptions.ValidationError(
