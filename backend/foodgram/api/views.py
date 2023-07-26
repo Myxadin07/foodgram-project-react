@@ -36,7 +36,7 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientsSerializer
     pagination_class = None
     filterset_class = IngredientsFilter
-    filter_backends = [DjangoFilterBackend]
+    # filter_backends = [DjangoFilterBackend]
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
@@ -54,7 +54,7 @@ class CustomUserViewset(UserViewSet):
     @action(
         methods=['DELETE', 'POST'],
         detail=True,
-        url_path='subscriptions',
+        url_path='subscribe',
         permission_classes=[IsAuthenticated]
     )
     def subscribe_or_unsubscribe(self, request, id=None):
