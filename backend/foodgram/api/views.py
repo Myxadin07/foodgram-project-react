@@ -37,7 +37,7 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
     filterset_class = IngredientsFilter
     filter_backends = (DjangoFilterBackend,)
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    # permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
 class CustomUserViewset(UserViewSet):
