@@ -88,7 +88,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     def add_to(self, model, user, pk):
         recipe = get_object_or_404(Recipes, pk=pk)
-        obj, created = model.objects.get_or_create(user=user)
+        obj, created = model.objects.get_or_create(user_id=user)
         obj.recipes.add(recipe)
         if created or obj:
             serializer = SerializerForCreatedRecipes(recipe)
@@ -98,7 +98,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
 
     def delete_from(self, model, user, pk):
         recipe = get_object_or_404(Recipes, pk=pk)
-        obj = get_object_or_404(model, user=user, recipes=recipe)
+        obj = get_object_or_404(model, user_id=user, recipes=recipe)
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
