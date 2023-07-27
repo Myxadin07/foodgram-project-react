@@ -3,25 +3,32 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.views import UserViewSet
+from djoser.views import UserViewSet, APIView
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+from rest_framework import mixins, viewsets
+
 
 from recipes.models import (
     Ingredients, IngredientsInRecipes, Recipes, ShoppingCart, Tags
 )
-from users.models import Users
+from users.models import Users, Follow
 from .filters import IngredientsFilter, RecipeFilter
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     CustomUserSerializer, IngredientsSerializer, TagsSerializer,
-    SerializerForCreatedRecipes, ReadRecipeSerializer, CreateRecipeSerializer
+    SerializerForCreatedRecipes, ReadRecipeSerializer, CreateRecipeSerializer,
+    SubscribeUserSerializer, SubscribeSerializer
 )
 from .pagination import NumberPerPage
 
 User = get_user_model()
+
+
+class ListViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    pass
 
 
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
@@ -40,38 +47,66 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     # permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
-class CustomUserViewset(UserViewSet):
-    queryset = Users.objects.all()
-    serializer_class = CustomUserSerializer
-    pagination_class = NumberPerPage
-    permission_classes = [IsAuthenticated]
+# class CustomUserViewset(UserViewSet):
+#     queryset = Users.objects.all()
+#     serializer_class = CustomUserSerializer
+#     pagination_class = NumberPerPage
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self):
+#         if self.action == "show_subscriptions":
+#             return self.request.user.subscriptions.all()
+#         return super().get_queryset()
+
+#     @action(
+#         methods=['DELETE', 'POST'],
+#         detail=True,
+#         url_path='subscribe',
+#         permission_classes=[IsAuthenticated]
+#     )
+#     def subscribe_or_unsubscribe(self, request, id=None):
+#         user = self.get_object()
+#         subscriber = request.user
+#         if request.method == 'POST':
+#             subscriber.subscriptions.add(user)
+#             return Response(
+#                 {'message': 'Вы успешно подписались'},
+#                 status=status.HTTP_201_CREATED
+#             )
+#         elif request.method == 'DELETE':
+#             subscriber.subscriptions.remove(user)
+#             return Response(
+#                 {'message': 'Вы успешно отписались'},
+#                 status=status.HTTP_204_NO_CONTENT
+#             )
+
+class SubscribeView(APIView):
+    '''Функционал создания и отмены, подписки на пользователя.'''
+
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, user_id):
+        serializer = SubscribeUserSerializer(
+            data={'user': request.user.id, 'author': user_id}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, user_id):
+        follow = get_object_or_404(Follow, author=user_id, user=request.user)
+        follow.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class SubscriptionsList(ListViewSet):
+    '''Представление списка подписок пользователя.'''
+
+    serializer_class = SubscribeSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        if self.action == "show_subscriptions":
-            return self.request.user.subscriptions.all()
-        return super().get_queryset()
-
-    @action(
-        methods=['DELETE', 'POST'],
-        detail=True,
-        url_path='subscribe',
-        permission_classes=[IsAuthenticated]
-    )
-    def subscribe_or_unsubscribe(self, request, id=None):
-        user = self.get_object()
-        subscriber = request.user
-        if request.method == 'POST':
-            subscriber.subscriptions.add(user)
-            return Response(
-                {'message': 'Вы успешно подписались'},
-                status=status.HTTP_201_CREATED
-            )
-        elif request.method == 'DELETE':
-            subscriber.subscriptions.remove(user)
-            return Response(
-                {'message': 'Вы успешно отписались'},
-                status=status.HTTP_204_NO_CONTENT
-            )
+        return Follow.objects.filter(user=self.request.user)
 
 
 class RecipesViewSet(viewsets.ModelViewSet):

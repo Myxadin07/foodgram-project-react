@@ -14,7 +14,7 @@ class Users(AbstractUser):
     confirmation_code = models.CharField(
         max_length=255, blank=True, null=True
     )
-    subscriptions = models.ManyToManyField(to='self', related_name='followers')
+    # subscriptions = models.ManyToManyField(to='self', related_name='followers')
 
     @property
     def is_admin(self):
@@ -27,3 +27,31 @@ class Users(AbstractUser):
 
     def __str__(self):
         return self.username
+
+
+class Follow(models.Model):
+    user = models.ForeignKey(
+        Users,
+        verbose_name='Подписчик',
+        on_delete=models.CASCADE,
+        related_name='follower',
+        help_text='Подписчик',
+    )
+    author = models.ForeignKey(
+        Users,
+        verbose_name='Автор',
+        on_delete=models.CASCADE,
+        related_name='author',
+        help_text='Автор',
+    )
+
+    class Meta:
+        ordering = ('id',)
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('user', 'author',),
+                name='unique_follow',
+            ),
+        ]
