@@ -48,8 +48,7 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     # permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
-class CustomUserViewSet(UserViewSet):
-
+class CustomUserViewset(UserViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
 
