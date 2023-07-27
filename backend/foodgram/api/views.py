@@ -47,6 +47,12 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     # permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
+class CustomUserViewSet(UserViewSet):
+
+    queryset = User.objects.all()
+    serializer_class = CustomUserSerializer
+
+
 # class CustomUserViewset(UserViewSet):
 #     queryset = Users.objects.all()
 #     serializer_class = CustomUserSerializer
@@ -81,8 +87,7 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
 #             )
 
 class SubscribeView(APIView):
-    '''Функционал создания и отмены, подписки на пользователя.'''
-
+    '''Cоздания и отмены, подписки на пользователя.'''
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, user_id):
@@ -100,8 +105,7 @@ class SubscribeView(APIView):
 
 
 class SubscriptionsList(ListViewSet):
-    '''Представление списка подписок пользователя.'''
-
+    '''Cписок подписок пользователя.'''
     serializer_class = SubscribeSerializer
     permission_classes = (IsAuthenticated,)
 
