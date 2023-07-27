@@ -30,12 +30,12 @@ class CustomUserSerializer(UserSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        '''Подписан ли текущий пользователь на запрашимаего пользователя'''
-        request = self.context.get('request')
-        current_user = request.user
-        if current_user.is_authenticated:
-            return current_user.subscriptions.filter(pk=obj.pk).exists()
-        return False
+        if self.context.get('request').user.is_anonymous:
+            return False
+        return Follow.objects.filter(
+            author=obj,
+            user=self.context.get('request').user
+        ).exists()
 
 
 class SetPasswordSerializer(serializers.Serializer):
