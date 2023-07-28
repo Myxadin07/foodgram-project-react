@@ -118,7 +118,7 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         ingredients_to_create = []
         for ingredient in ingredients:
             amount = ingredient.pop("amount")
-            ingredient = get_object_or_404(Ingredients, id=ingredient["id"])
+            ingredient = get_object_or_404(Ingredients, ingredient=ingredient["id"])
             ingredients_to_create.append(
                 IngredientsInRecipes(
                     ingredient=ingredient,
