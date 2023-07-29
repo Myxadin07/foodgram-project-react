@@ -148,6 +148,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         return ReadRecipeSerializer
 
     def add_to(self, model, user, pk):
+        user = self.request.user.id
         recipe = get_object_or_404(Recipes, pk=pk)
         obj, created = model.objects.get_or_create(user_id=user)
         obj.recipes.add(recipe)
