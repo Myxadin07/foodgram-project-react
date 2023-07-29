@@ -229,56 +229,41 @@ class SerializerForCreatedRecipes(serializers.ModelSerializer):
         model = Recipes
 
 
-class SubscribeSerializer(serializers.ModelSerializer):
-    '''Сериализатор отображения списка подписок.'''
+class SubscriptionSerializer(serializers.ModelSerializer):
+
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
     is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
-        model = Follow
-        fields = (
-            'email', 'id', 'username', 'first_name', 'last_name',
-            'is_subscribed', 'recipes', 'recipes_count'
-        )
+        model = User
+        fields = ('id',
+                  'email',
+                  'username',
+                  'first_name',
+                  'author',
+                  'last_name',
+                  'is_subscribed',
+                  'recipes',
+                  'recipes_count')
+
+    def get_recipes(self, obj):
+        recipes_limit = self.context.get('recipes_limit')
+        if recipes_limit:
+            recipes = obj.recipes.all()[:int(recipes_limit)]
+            serializer = SerializerForCreatedRecipes(
+                instance=recipes,
+                many=True,
+                context=self.context,
+            )
+            return serializer.data
+        return []
+
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         return Follow.objects.filter(
             user=request.user, author=obj.pk
         ).exists()
-
-    def get_recipes(self, obj):
-        queryset = Recipes.objects.filter(author=obj.author)
-        return ReadRecipeSerializer(queryset, many=True).data
-
-    def get_recipes_count(self, obj):
-        return Recipes.objects.filter(author=obj.author).count()
-
-
-class SubscribeUserSerializer(serializers.ModelSerializer):
-    '''Сериалайзер функционала создания и отмены, подписки на пользователя.'''
-
-    class Meta:
-        model = Follow
-        fields = '__all__'
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Follow.objects.all(),
-                fields=('user', 'author',),
-                message='Вы уже подписаны на данного пользователя'
-            )
-        ]
-
-    def validate(self, data):
-        if data.get('user') == data.get('author'):
-            raise serializers.ValidationError(
-                'Вы не можете оформлять подписки на себя.'
-            )
-        return data
-
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        return SubscribeSerializer(
-            instance, context={'request': request}
-        ).data
