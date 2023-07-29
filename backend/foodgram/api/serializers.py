@@ -134,20 +134,6 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        # ingredients = validated_data.pop('ingredients')
-        # tags = validated_data.pop('tags')
-        # IngredientsInRecipes.objects.filter(recipe=instance).delete()
-        # instance.tags.set(tags)
-        # recipe_ingredient_list = []
-        # for ingredient in ingredients:
-        #     recipe_ingredient = IngredientsInRecipes(
-        #         recipe=instance,
-        #         amount=ingredient['amount'],
-        #         # ingredient=get_object_or_404(Ingredients, id=ingredient["id"])
-        #     )
-        #     recipe_ingredient_list.append(recipe_ingredient)
-        # IngredientsInRecipes.objects.bulk_create(recipe_ingredient_list)
-        # return super().update(instance, validated_data)
         ingredients = validated_data.pop("ingredients")
         tags = validated_data.pop("tags")
         IngredientsInRecipes.objects.filter(recipe=instance).delete()
@@ -245,15 +231,9 @@ class SerializerForCreatedRecipes(serializers.ModelSerializer):
 
 class SubscribeSerializer(serializers.ModelSerializer):
     '''Сериализатор отображения списка подписок.'''
-
-    email = serializers.ReadOnlyField(source='author.email')
-    id = serializers.ReadOnlyField(source='author.id')
-    username = serializers.ReadOnlyField(source='author.username')
-    first_name = serializers.ReadOnlyField(source='author.first_name')
-    last_name = serializers.ReadOnlyField(source='author.last_name')
-    is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = Follow
@@ -263,7 +243,10 @@ class SubscribeSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        return Follow.objects.filter(author=obj.author, user=obj.user).exists()
+        request = self.context.get('request')
+        return Follow.objects.filter(
+            user=request.user, author=obj.pk
+        ).exists()
 
     def get_recipes(self, obj):
         queryset = Recipes.objects.filter(author=obj.author)
