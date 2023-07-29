@@ -166,11 +166,11 @@ class ShoppingCart(models.Model):
     user = models.OneToOneField(
         Users,
         on_delete=models.CASCADE,
-        related_name='users_shopping_cart',
+        related_name='shopping_cart',
     )
     recipes = models.ManyToManyField(
         Recipes,
-        related_name='recipe_shopping_cart'
+        related_name='shopping_cart'
     )
 
     class Meta:
