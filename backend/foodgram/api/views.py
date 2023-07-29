@@ -12,7 +12,7 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 
 from recipes.models import (
-    Ingredients, IngredientsInRecipes, Recipes, ShoppingCart, Tags
+    Ingredients, IngredientsInRecipes, Recipes, ShoppingCart, Tags, Favorite
 )
 from users.models import Users, Follow
 from .filters import IngredientsFilter, RecipeFilter
@@ -147,9 +147,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
     )
     def favorite(self, request, pk):
         if request.method == 'POST':
-            return self.add_to(Users, request.user, pk)
+            return self.add_to(Favorite, request.user, pk)
         elif request.method == 'DELETE':
-            return self.delete_from(Users, request.user, pk)
+            return self.delete_from(Favorite, request.user, pk)
 
     @action(
         detail=True,
