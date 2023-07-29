@@ -122,33 +122,24 @@ class RecipesViewSet(viewsets.ModelViewSet):
             return CreateRecipeSerializer
         return ReadRecipeSerializer
 
-    def add_to(add_serializer, model, request, recipes_id):
-        user = request.user
-        if model.objects.filter(user=user, recipes__id=recipes_id).exists():
-            return Response({'errors': 'Рецепт уже был добавлен!'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        recipe = get_object_or_404(Recipes, id=recipes_id)
-        model.objects.create(user=user, recipes=recipe)
-        serializer = add_serializer(recipe)
-        return Response(serializer.data,
-                        status=status.HTTP_201_CREATED)
-        # user = self.request.user.id
-        # recipe = get_object_or_404(Recipes, pk=pk)
-        # obj, created = model.objects.get_or_create(user_id=user)
-        # obj.recipes.add(recipe)
-        # if created or obj:
-        #     serializer = SerializerForCreatedRecipes(recipe)
-        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
-        # else:
-        #     return Response(status=status.HTTP_304_NOT_MODIFIED)
+    def add_to(self, model, user, pk):
+        user = self.request.user.id
+        recipe = get_object_or_404(Recipes, pk=pk)
+        obj, created = model.objects.get_or_create(user_id=user)
+        obj.recipes.add(recipe)
+        if created or obj:
+            serializer = SerializerForCreatedRecipes(recipe)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(status=status.HTTP_304_NOT_MODIFIED)
 
-    def delete_from(model, request, recipes_id):
+    def delete_from(model, request, recipe_id):
         user = request.user
-        obj = model.objects.filter(user=user, recipes__id=recipes_id)
+        obj = model.objects.filter(user=user, recipe__id=recipe_id)
         if obj.exists():
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({'errors': 'Рецепт уже был удален!'},
+        return Response({'errors': 'Рецепт уже был удален ранее!'},
                         status=status.HTTP_400_BAD_REQUEST)
 
     @action(
@@ -159,9 +150,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
     )
     def favorite(self, request, pk):
         if request.method == 'POST':
-            return self.add_to(Favorite, request.user.id, pk)
+            return self.add_to(Favorite, request.user, pk)
         elif request.method == 'DELETE':
-            return self.delete_from(Favorite, request.user.id, pk)
+            return self.delete_from(Favorite, request.user, pk)
 
     @action(
         detail=True,
@@ -194,5 +185,3 @@ class RecipesViewSet(viewsets.ModelViewSet):
             'attachment; filename="shopping_list.txt"'
         )
         return response
-
-#sdf
