@@ -109,42 +109,50 @@ class CreateRecipeSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ('author',)
 
+    def create_ingredients(self, recipe, ingredients):
+        recipe_ingredients = [
+            IngredientsInRecipes(
+                recipe=recipe,
+                ingredient=ingredient.get('id'),
+                amount=ingredient.get('amount'),
+            ) for ingredient in ingredients
+        ]
+        IngredientsInRecipes.objects.bulk_create(recipe_ingredients)
+
     @transaction.atomic
     def create(self, validated_data):
         current_user = self.context['request'].user
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
-        recipe = Recipes.objects.create(**validated_data, author=current_user)
-        ingredients_to_create = []
-        for ingredient in ingredients:
-            amount = ingredient.pop("amount")
-            ingredient = get_object_or_404(Ingredients, ingredient=ingredient["id"])
-            ingredients_to_create.append(
-                IngredientsInRecipes(
-                    ingredient=ingredient,
-                    recipe=recipe,
-                    amount=amount
-                )
-            )
-        IngredientsInRecipes.objects.bulk_create(ingredients_to_create)
-        recipe.tags.set(tags)
-        return recipe
+        new_recipe = Recipes.objects.create(
+            author=current_user,
+            **validated_data
+        )
+        new_recipe.tags.set(tags)
+        self.create_ingredients(new_recipe, ingredients)
+        return new_recipe
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
+        # ingredients = validated_data.pop('ingredients')
+        # tags = validated_data.pop('tags')
+        # IngredientsInRecipes.objects.filter(recipe=instance).delete()
+        # instance.tags.set(tags)
+        # recipe_ingredient_list = []
+        # for ingredient in ingredients:
+        #     recipe_ingredient = IngredientsInRecipes(
+        #         recipe=instance,
+        #         amount=ingredient['amount'],
+        #         # ingredient=get_object_or_404(Ingredients, id=ingredient["id"])
+        #     )
+        #     recipe_ingredient_list.append(recipe_ingredient)
+        # IngredientsInRecipes.objects.bulk_create(recipe_ingredient_list)
+        # return super().update(instance, validated_data)
+        ingredients = validated_data.pop("ingredients")
+        tags = validated_data.pop("tags")
         IngredientsInRecipes.objects.filter(recipe=instance).delete()
+        self.create_ingredients(instance, ingredients)
         instance.tags.set(tags)
-        recipe_ingredient_list = []
-        for ingredient in ingredients:
-            recipe_ingredient = IngredientsInRecipes(
-                recipe=instance,
-                amount=ingredient['amount'],
-                # ingredient=get_object_or_404(Ingredients, id=ingredient["id"])
-            )
-            recipe_ingredient_list.append(recipe_ingredient)
-        IngredientsInRecipes.objects.bulk_create(recipe_ingredient_list)
         return super().update(instance, validated_data)
 
     def to_representation(self, instance):
