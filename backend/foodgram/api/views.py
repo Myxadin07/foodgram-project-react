@@ -122,23 +122,34 @@ class RecipesViewSet(viewsets.ModelViewSet):
             return CreateRecipeSerializer
         return ReadRecipeSerializer
 
-    def add_to(self, model, user, pk):
-        user = self.request.user.id
-        recipe = get_object_or_404(Recipes, pk=pk)
-        obj, created = model.objects.get_or_create(user_id=user)
-        obj.recipes.add(recipe)
-        if created or obj:
-            serializer = SerializerForCreatedRecipes(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(status=status.HTTP_304_NOT_MODIFIED)
+    def add_to(add_serializer, model, request, recipe_id):
+        user = request.user
+        if model.objects.filter(user=user, recipe__id=recipe_id).exists():
+            return Response({'errors': 'Рецепт уже был добавлен ранее!'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        recipe = get_object_or_404(Recipes, id=recipe_id)
+        model.objects.create(user=user, recipe=recipe)
+        serializer = add_serializer(recipe)
+        return Response(serializer.data,
+                        status=status.HTTP_201_CREATED)
+        # user = self.request.user.id
+        # recipe = get_object_or_404(Recipes, pk=pk)
+        # obj, created = model.objects.get_or_create(user_id=user)
+        # obj.recipes.add(recipe)
+        # if created or obj:
+        #     serializer = SerializerForCreatedRecipes(recipe)
+        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # else:
+        #     return Response(status=status.HTTP_304_NOT_MODIFIED)
 
-    def delete_from(self, model, user, pk):
-        user = self.request.user.id
-        recipe = get_object_or_404(Recipes, pk=pk)
-        obj = get_object_or_404(model, user_id=user, recipes=recipe)
-        obj.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete_from(model, request, recipe_id):
+        user = request.user
+        obj = model.objects.filter(user=user, recipe__id=recipe_id)
+        if obj.exists():
+            obj.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({'errors': 'Рецепт уже был удален ранее!'},
+                        status=status.HTTP_400_BAD_REQUEST)
 
     @action(
         detail=True,
