@@ -6,18 +6,17 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets, exceptions
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import (
+    IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
+)
 from rest_framework.response import Response
 from rest_framework import mixins, viewsets
-from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
 
 from recipes.models import (
     Ingredients, IngredientsInRecipes, Recipes, ShoppingCart, Tags
 )
 from users.models import Users, Follow
 from .filters import IngredientsFilter, RecipeFilter
-from .permissions import IsAuthorOrReadOnly
 from .serializers import (
     IngredientsSerializer, TagsSerializer,
     SerializerForCreatedRecipes, ReadRecipeSerializer, CreateRecipeSerializer,

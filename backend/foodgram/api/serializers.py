@@ -1,11 +1,9 @@
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.conf import settings
 from djoser.serializers import UserSerializer
 from rest_framework import serializers, exceptions
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework.validators import UniqueTogetherValidator
 
 from recipes.models import (
     Ingredients, Tags, Recipes, ShoppingCart,
