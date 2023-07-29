@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
-from rest_framework import status, viewsets
+from rest_framework import status, viewsets, exceptions
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -48,91 +48,186 @@ class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     # permission_classes = (IsAuthenticatedOrReadOnly,)
 
 
-class CustomUserViewset(UserViewSet):
-    queryset = User.objects.all()
-    serializer_class = CustomUserSerializer
-
-
 # class CustomUserViewset(UserViewSet):
-#     queryset = Users.objects.all()
+#     queryset = User.objects.all()
 #     serializer_class = CustomUserSerializer
-#     pagination_class = NumberPerPage
-#     permission_classes = [IsAuthenticated]
 
-#     def get_queryset(self):
-#         if self.action == "show_subscriptions":
-#             return self.request.user.subscriptions.all()
-#         return super().get_queryset()
 
-#     @action(
-#         methods=['DELETE', 'POST'],
-#         detail=True,
-#         url_path='subscribe',
-#         permission_classes=[IsAuthenticated]
-#     )
-#     def subscribe_or_unsubscribe(self, request, id=None):
-#         user = self.get_object()
-#         subscriber = request.user
-#         if request.method == 'POST':
-#             subscriber.subscriptions.add(user)
-#             return Response(
-#                 {'message': 'Вы успешно подписались'},
-#                 status=status.HTTP_201_CREATED
-#             )
-#         elif request.method == 'DELETE':
-#             subscriber.subscriptions.remove(user)
-#             return Response(
-#                 {'message': 'Вы успешно отписались'},
-#                 status=status.HTTP_204_NO_CONTENT
-#             )
-
-class SubscribeToUserView(APIView):
-    permission_classes = (IsAuthenticated,)
+class CustomUserViewset(UserViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = NumberPerPage
-
-    @action(
-        detail=True,
-        methods=('POST', 'DELETE',),
-        serializer_class=SubscriptionSerializer,
-        permission_classes=(IsAuthenticated,)
-    )
-    def subscribe(self, request, id):
-        user = request.user
-        author = get_object_or_404(Users, pk=id)
-        if request.method == 'POST':
-            serializer = SubscriptionSerializer(
-                author, data=request.data, context={'request': request}
-            )
-            serializer.is_valid(raise_exception=True)
-            Follow.objects.create(user=user, author=author)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        if request.method == 'DELETE':
-            follow = get_object_or_404(
-                Follow, user=user, author=author
-            )
-            follow.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class SubscriptionsView(ListAPIView):
-    serializer_class = SubscriptionSerializer
-    pagination_class = NumberPerPage
-    permission_classes = (IsAuthenticated,)
-
-    def get_queryset(self):
-        return self.request.user.author.all()
 
     @action(
         detail=False,
-        permission_classes=(IsAuthenticated,),
-        serializer_class=SubscriptionSerializer
+        methods=('get',),
+        serializer_class=SubscriptionSerializer,
+        permission_classes=(IsAuthenticated, )
     )
     def subscriptions(self, request):
-        user = request.user
-        queryset = Users.objects.filter(follower__user=user)
+        user = self.request.user
+        user_subscriptions = user.follower.all()
+        authors = [item.author.id for item in user_subscriptions]
+        queryset = Users.objects.filter(pk__in=authors)
         paginated_queryset = self.paginate_queryset(queryset)
-        serializer = SubscriptionSerializer(paginated_queryset, many=True)
+        serializer = self.get_serializer(paginated_queryset, many=True)
+
         return self.get_paginated_response(serializer.data)
+
+    @action(
+        detail=True,
+        methods=('post', 'delete'),
+        serializer_class=SubscriptionSerializer
+    )
+    def subscribe(self, request, id=None):
+        user = self.request.user
+        author = get_object_or_404(User, pk=id)
+
+        if self.request.method == 'POST':
+            if user == author:
+                raise exceptions.ValidationError(
+                    'Подписка на самого себя запрещена.'
+                )
+            if Follow.objects.filter(
+                user=user,
+                author=author
+            ).exists():
+                raise exceptions.ValidationError('Подписка уже оформлена.')
+
+            Follow.objects.create(user=user, author=author)
+            serializer = self.get_serializer(author)
+
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        if self.request.method == 'DELETE':
+            if not Follow.objects.filter(
+                user=user,
+                author=author
+            ).exists():
+                raise exceptions.ValidationError(
+                    'Подписка не была оформлена, либо уже удалена.'
+                )
+
+            subscription = get_object_or_404(
+                Follow,
+                user=user,
+                author=author
+            )
+            subscription.delete()
+
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    # queryset = Users.objects.all()
+    # serializer_class = CustomUserSerializer
+    # pagination_class = NumberPerPage
+    # permission_classes = [IsAuthenticated]
+
+    # def get_queryset(self):
+    #     if self.action == "show_subscriptions":
+    #         return self.request.user.subscriptions.all()
+    #     return super().get_queryset()
+
+    # @action(
+    #     methods=['DELETE', 'POST'],
+    #     detail=True,
+    #     url_path='subscribe',
+    #     permission_classes=[IsAuthenticated]
+    # )
+    # def subscribe_or_unsubscribe(self, request, id=None):
+    #     user = self.get_object()
+    #     subscriber = request.user
+    #     if request.method == 'POST':
+    #         subscriber.subscriptions.add(user)
+    #         return Response(
+    #             {'message': 'Вы успешно подписались'},
+    #             status=status.HTTP_201_CREATED
+    #         )
+    #     elif request.method == 'DELETE':
+    #         subscriber.subscriptions.remove(user)
+    #         return Response(
+    #             {'message': 'Вы успешно отписались'},
+    #             status=status.HTTP_204_NO_CONTENT
+    #         )
+
+# class SubscribeToUserView(viewsets.ModelViewSet):
+#     permission_classes = (IsAuthenticated,)
+#     pagination_class = NumberPerPage
+
+#     @action(
+#         detail=True,
+#         methods=['post', 'delete'],
+#         serializer_class=SubscriptionSerializer,
+#         permission_classes=(IsAuthenticated,)
+#     )
+#     def subscribe(self, request, id):
+#         user = self.request.user
+#         author = get_object_or_404(Users, pk=id)
+        # if request.method == 'post':
+        #     serializer = SubscriptionSerializer(
+        #         author, data=request.data, context={'request': request}
+        #     )
+        #     serializer.is_valid(raise_exception=True)
+        #     Follow.objects.create(user=user, author=author)
+        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # if self.request.method == 'POST':
+        #     if user == author:
+        #         raise exceptions.ValidationError(
+        #             'Подписка на самого себя запрещена.'
+        #         )
+        #     if Follow.objects.filter(user=user, author=author).exists():
+        #         raise exceptions.ValidationError('Подписка уже оформлена.')
+
+        #     Follow.objects.create(user=user, author=author)
+        #     serializer = self.get_serializer(author)
+
+        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        # if self.request.method == 'DELETE':
+        #     if not Follow.objects.filter(
+        #         user=user,
+        #         author=author
+        #     ).exists():
+        #         raise exceptions.ValidationError(
+        #             'Подписка не была оформлена, либо уже удалена.'
+        #         )
+
+        #     subscription = get_object_or_404(
+        #         Follow,
+        #         user=user,
+        #         author=author
+        #     )
+        #     subscription.delete()
+
+        #     return Response(status=status.HTTP_204_NO_CONTENT)
+
+        # return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        # if request.method == 'delete':
+        #     follow = get_object_or_404(
+        #         Follow, user=user, author=author
+        #     )
+        #     follow.delete()
+        #     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# class SubscriptionsView(ListAPIView):
+#     serializer_class = SubscriptionSerializer
+#     pagination_class = NumberPerPage
+#     permission_classes = (IsAuthenticated,)
+
+#     def get_queryset(self):
+#         return self.request.user.author.all()
+
+#     @action(
+#         detail=False,
+#         permission_classes=(IsAuthenticated,),
+#         serializer_class=SubscriptionSerializer
+#     )
+#     def subscriptions(self, request):
+#         user = request.user
+#         queryset = Users.objects.filter(follower__user=user)
+#         paginated_queryset = self.paginate_queryset(queryset)
+#         serializer = SubscriptionSerializer(paginated_queryset, many=True)
+#         return self.get_paginated_response(serializer.data)
 
 
 class RecipesViewSet(viewsets.ModelViewSet):
