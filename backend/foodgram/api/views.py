@@ -122,13 +122,13 @@ class RecipesViewSet(viewsets.ModelViewSet):
             return CreateRecipeSerializer
         return ReadRecipeSerializer
 
-    def add_to(add_serializer, model, request, recipe_id):
+    def add_to(add_serializer, model, request, recipes_id):
         user = request.user
-        if model.objects.filter(user=user, recipe__id=recipe_id).exists():
-            return Response({'errors': 'Рецепт уже был добавлен ранее!'},
+        if model.objects.filter(user=user, recipes__id=recipes_id).exists():
+            return Response({'errors': 'Рецепт уже был добавлен!'},
                             status=status.HTTP_400_BAD_REQUEST)
-        recipe = get_object_or_404(Recipes, id=recipe_id)
-        model.objects.create(user=user, recipe=recipe)
+        recipe = get_object_or_404(Recipes, id=recipes_id)
+        model.objects.create(user=user, recipes=recipe)
         serializer = add_serializer(recipe)
         return Response(serializer.data,
                         status=status.HTTP_201_CREATED)
@@ -142,13 +142,13 @@ class RecipesViewSet(viewsets.ModelViewSet):
         # else:
         #     return Response(status=status.HTTP_304_NOT_MODIFIED)
 
-    def delete_from(model, request, recipe_id):
+    def delete_from(model, request, recipes_id):
         user = request.user
-        obj = model.objects.filter(user=user, recipe__id=recipe_id)
+        obj = model.objects.filter(user=user, recipes__id=recipes_id)
         if obj.exists():
             obj.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({'errors': 'Рецепт уже был удален ранее!'},
+        return Response({'errors': 'Рецепт уже был удален!'},
                         status=status.HTTP_400_BAD_REQUEST)
 
     @action(
