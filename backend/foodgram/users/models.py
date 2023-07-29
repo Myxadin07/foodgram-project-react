@@ -14,7 +14,6 @@ class Users(AbstractUser):
     confirmation_code = models.CharField(
         max_length=255, blank=True, null=True
     )
-    # subscriptions = models.ManyToManyField(to='self', related_name='followers')
 
     @property
     def is_admin(self):
