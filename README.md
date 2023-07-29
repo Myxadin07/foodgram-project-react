@@ -2,7 +2,7 @@
 
 Сайт доступен по следующему адресу: http://158.160.68.239/
 
-[![GITHUB-BADGE](https://github.com/Myxadin07/foodgram-project-react/actions/workflows/yamdb_workflow.yml/badge.svg)](https://github.com/Myxadin07/yamdb_final/actions/workflows/yamdb_workflow.yml)
+[![GITHUB-BADGE](https://github.com/Myxadin07/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)](https://github.com/Myxadin07/foodgram-project-react/actions/workflows/foodgram_workflow.yml)
 
 ## Технологический стек
 [![Python](https://img.shields.io/badge/-Python-464646?style=flat&logo=Python&logoColor=FFD700&color=8B008B)](https://www.python.org/)
