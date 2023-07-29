@@ -134,6 +134,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_304_NOT_MODIFIED)
 
     def delete_from(self, model, user, pk):
+        user = self.request.user.id
         recipe = get_object_or_404(Recipes, pk=pk)
         obj = get_object_or_404(model, user_id=user, recipes=recipe)
         obj.delete()
@@ -147,9 +148,9 @@ class RecipesViewSet(viewsets.ModelViewSet):
     )
     def favorite(self, request, pk):
         if request.method == 'POST':
-            return self.add_to(Favorite, request.user, pk)
+            return self.add_to(Favorite, request.user.id, pk)
         elif request.method == 'DELETE':
-            return self.delete_from(Favorite, request.user, pk)
+            return self.delete_from(Favorite, request.user.id, pk)
 
     @action(
         detail=True,
