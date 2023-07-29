@@ -1,6 +1,6 @@
 # CI/CD для проекта API YAMDB
 
-Сайт доступен по следующему адресу: http://158.160.29.130/
+Сайт доступен по следующему адресу: http://158.160.68.239/
 
 [![GITHUB-BADGE](https://github.com/Myxadin07/foodgram-project-react/actions/workflows/yamdb_workflow.yml/badge.svg)](https://github.com/Myxadin07/yamdb_final/actions/workflows/yamdb_workflow.yml)
 
