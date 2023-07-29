@@ -86,15 +86,15 @@ class CustomUserViewset(UserViewSet):
 #                 status=status.HTTP_204_NO_CONTENT
 #             )
 
-class FollowUserView(APIView):
+class SubscribeToUserView(APIView):
     permission_classes = (IsAuthenticated,)
     pagination_class = NumberPerPage
 
     @action(
         detail=True,
-        methods=['POST', 'DELETE'],
+        methods=('POST', 'DELETE',),
         serializer_class=SubscriptionSerializer,
-        permission_classes=[IsAuthenticated]
+        permission_classes=(IsAuthenticated,)
     )
     def subscribe(self, request, id):
         user = request.user
@@ -117,14 +117,14 @@ class FollowUserView(APIView):
 class SubscriptionsView(ListAPIView):
     serializer_class = SubscriptionSerializer
     pagination_class = NumberPerPage
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         return self.request.user.author.all()
 
     @action(
         detail=False,
-        permission_classes=[IsAuthenticated],
+        permission_classes=(IsAuthenticated,),
         serializer_class=SubscriptionSerializer
     )
     def subscriptions(self, request):
