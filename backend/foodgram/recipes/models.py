@@ -60,7 +60,7 @@ class Ingredients(models.Model):
                 name='unique_ingredient',
                 violation_error_message=(
                     'Уже есть такой ингредиент с такой мерой измерения!'
-                )
+                ),
             )
         ]
 
