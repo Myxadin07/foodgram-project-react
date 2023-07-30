@@ -51,8 +51,18 @@ class Ingredients(models.Model):
     )
 
     class Meta:
+        ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        constraints = [
+            models.UniqueConstraintTo(
+                fields=['name', 'measurement_unit'],
+                name='unique_ingredient',
+                violation_error_message=(
+                    'Уже есть такой ингредиент с такой мерой измерения!'
+                )
+            )
+        ]
 
     def __str__(self):
         return self.name

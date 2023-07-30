@@ -134,7 +134,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         #     return Response(serializer.data, status=status.HTTP_201_CREATED)
         # else:
         #     return Response(status=status.HTTP_304_NOT_MODIFIED)
-        if model.objects.filter(user=user, recipe=recipe
+        if model.objects.filter(user=user, recipes=recipe
                                 ).exists():
             raise exceptions.ValidationError('Рецепт уже в избранном.')
         model.objects.create(user=user, recipes=recipe)
@@ -168,7 +168,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     )
     def favorite(self, request, pk):
         if request.method == 'POST':
-            return self.add_to(Favorite, request.user.id, pk)
+            return self.add_to(Favorite, request, pk)
         elif request.method == 'DELETE':
             return self.delete_from(Favorite, request.user.id, pk)
 
@@ -203,5 +203,3 @@ class RecipesViewSet(viewsets.ModelViewSet):
             'attachment; filename="shopping_list.txt"'
         )
         return response
-
-#sdf
