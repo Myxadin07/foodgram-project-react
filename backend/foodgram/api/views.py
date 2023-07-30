@@ -133,8 +133,8 @@ class RecipesViewSet(viewsets.ModelViewSet):
         else:
             return Response(status=status.HTTP_304_NOT_MODIFIED)
 
-    def delete_from(model, request, recipe_id):
-        user = request.user.id
+    def delete_from(self, model, request, recipe_id):
+        user = self.request.user.id
         obj = model.objects.filter(user_id=user, recipes__id=recipe_id)
         if obj.exists():
             obj.delete()
