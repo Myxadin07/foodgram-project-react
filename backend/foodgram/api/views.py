@@ -134,7 +134,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
         #     return Response(serializer.data, status=status.HTTP_201_CREATED)
         # else:
         #     return Response(status=status.HTTP_304_NOT_MODIFIED)
-        if model.objects.filter(user=user, recipes=recipe
+        if model.objects.filter(user=user, recipes_id=recipe
                                 ).exists():
             raise exceptions.ValidationError('Рецепт уже в избранном.')
         model.objects.create(user=user, recipes=recipe)
@@ -144,7 +144,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     def delete_from(self, model, request, pk):
         user = self.request.user
         recipe = get_object_or_404(Recipes, pk=pk)
-        if not model.objects.filter(user=user, recipes=recipe
+        if not model.objects.filter(user=user, recipe_id=recipe
                                     ).exists():
             raise exceptions.ValidationError(
                 'Рецепта нет в избранном, либо он уже удален.'
