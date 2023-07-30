@@ -55,7 +55,7 @@ class Ingredients(models.Model):
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
         constraints = [
-            models.UniqueConstraintTo(
+            models.UniqueConstraint(
                 fields=['name', 'measurement_unit'],
                 name='unique_ingredient',
                 violation_error_message=(
