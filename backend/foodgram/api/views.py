@@ -122,25 +122,43 @@ class RecipesViewSet(viewsets.ModelViewSet):
             return CreateRecipeSerializer
         return ReadRecipeSerializer
 
-    def add_to(self, model, user, pk):
-        user = self.request.user.id
+    def add_to(self, model, request, pk):
+        user = self.request.user
         recipe = get_object_or_404(Recipes, pk=pk)
-        obj, created = model.objects.get_or_create(user_id=user)
-        obj.recipes.add(recipe)
-        if created or obj:
-            serializer = SerializerForCreatedRecipes(recipe)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            return Response(status=status.HTTP_304_NOT_MODIFIED)
+        # user = self.request.user.id
+        # recipe = get_object_or_404(Recipes, pk=pk)
+        # obj, created = model.objects.get_or_create(user_id=user)
+        # obj.recipes.add(recipe)
+        # if created or obj:
+        #     serializer = SerializerForCreatedRecipes(recipe)
+        #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+        # else:
+        #     return Response(status=status.HTTP_304_NOT_MODIFIED)
+        if model.objects.filter(user=user, recipe=recipe
+                                ).exists():
+            raise exceptions.ValidationError('Рецепт уже в избранном.')
+        model.objects.create(user=user, recipes=recipe)
+        serializer = SerializerForCreatedRecipes(recipe, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-    def delete_from(self, model, request, recipe_id):
-        user = self.request.user.id
-        obj = model.objects.filter(user_id=user, recipes__id=recipe_id)
-        if obj.exists():
-            obj.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({'errors': 'Рецепт уже был удален ранее!'},
-                        status=status.HTTP_400_BAD_REQUEST)
+    def delete_from(self, model, request, pk):
+        user = self.request.user
+        recipe = get_object_or_404(Recipes, pk=pk)
+        if not model.objects.filter(user=user, recipes=recipe
+                                    ).exists():
+            raise exceptions.ValidationError(
+                'Рецепта нет в избранном, либо он уже удален.'
+            )
+        favorite = get_object_or_404(model, user=user, recipes=recipe)
+        favorite.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+        # user = self.request.user.id
+        # obj = model.objects.filter(user_id=user, recipes__id=recipe_id)
+        # if obj.exists():
+        #     obj.delete()
+        #     return Response(status=status.HTTP_204_NO_CONTENT)
+        # return Response({'errors': 'Рецепт уже был удален ранее!'},
+        #                 status=status.HTTP_400_BAD_REQUEST)
 
     @action(
         detail=True,
