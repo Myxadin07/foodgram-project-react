@@ -83,13 +83,13 @@ class CustomUserViewset(UserViewSet):
         if self.request.method == 'POST':
             if user == author:
                 raise exceptions.ValidationError(
-                    'Подписка на самого себя запрещена.'
+                    'Нельзя подписаться на самого себя'
                 )
             if Follow.objects.filter(
                 user=user,
                 author=author
             ).exists():
-                raise exceptions.ValidationError('Подписка уже оформлена.')
+                raise exceptions.ValidationError('Вы подписались ранее!')
 
             Follow.objects.create(user=user, author=author)
             serializer = self.get_serializer(author)
@@ -102,7 +102,7 @@ class CustomUserViewset(UserViewSet):
                 author=author
             ).exists():
                 raise exceptions.ValidationError(
-                    'Подписка не была оформлена, либо уже удалена.'
+                    'Вы отписались'
                 )
 
             subscription = get_object_or_404(
