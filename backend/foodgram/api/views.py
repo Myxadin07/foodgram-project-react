@@ -177,7 +177,7 @@ class RecipesViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
         """"Вывод списка покупок в текстовый файл"""
-        shopping_cart_filter = request.user.shopping_cart.all()
+        shopping_cart_filter = request.user.users_shopping_cart.recipes.all()
         ingredient_filter = IngredientsInRecipes.objects.filter(
             recipe__in=shopping_cart_filter
         ).values('ingredient__name').annotate(total_amount=Sum('amount'))
