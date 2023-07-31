@@ -189,7 +189,3 @@ class RecipesViewSet(viewsets.ModelViewSet):
             'attachment; filename="shopping_list.txt"'
         )
         return response
-
-# shopping_cart_filter = ShoppingCart.objects.filter(
-        #     recipes__shopping_cart__user=request.user
-        # )
