@@ -160,7 +160,7 @@ class Favorite(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipes'],
-                name='unique_favorite_user_recipe'
+                name='Рецепт уже есть в списке избранного'
             )
         ]
 
@@ -177,6 +177,7 @@ class ShoppingCart(models.Model):
     )
     recipes = models.ForeignKey(
         Recipes,
+        on_delete=models.CASCADE,
         related_name='shopping_cart'
     )
 
